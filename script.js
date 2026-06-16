@@ -4,7 +4,7 @@
    voice, image generation, settings, and more.
    ============================================================ */
 
-'use strict';
+
 
 /* ── Gemini API Configuration ─────────────────────────────── */
 const GEMINI_API_KEY = "AIzaSyCBYIqiIuQOGmGxzDt6YB88-08pWMv_d1s";
