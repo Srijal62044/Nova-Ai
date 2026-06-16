@@ -605,39 +605,7 @@ async function validateOpenRouterKey(key) {
  * @returns {Promise<string>} - Object URL or base64 data URL
  */
 async function callHuggingFaceImage(prompt) {
-  const token = getHFToken();
-  if (!token) throw new Error('No Hugging Face token set. Go to Settings and enter your token.');
-
-  let res;
-  try {
-    res = await fetch(HF_IMAGE_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ inputs: prompt }),
-    });
-  } catch {
-    throw new Error('Unable to reach Hugging Face. Check your internet connection.');
-  }
-
-  if (!res.ok) {
-    const errText = await res.text().catch(() => '');
-    let errMsg = '';
-    try { errMsg = JSON.parse(errText)?.error || errText; } catch { errMsg = errText; }
-    if (res.status === 503) throw new Error('The FLUX model is loading on Hugging Face servers. Please wait ~20 seconds and try again.');
-    throw new Error(parseApiError(res.status, errMsg));
-  }
-
-  // HF returns raw image bytes
-  const blob = await res.blob();
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error('Failed to read image data.'));
-    reader.readAsDataURL(blob);
-  });
+    return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 }
 
 /**
