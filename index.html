@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nova AI — Your Intelligent Assistant</title>
+  <meta name="description" content="Nova AI — A premium, futuristic AI chatbot powered by OpenRouter and Hugging Face FLUX." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Markdown — pinned to v4 (v5+ has a breaking API change) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+
+  <!-- Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       OVERLAY — used for mobile sidebar + modals
+  ============================================================ -->
+  <div id="overlay" class="overlay" onclick="closeSidebar()"></div>
+
+  <!-- ============================================================
+       SIDEBAR
+  ============================================================ -->
+  <aside id="sidebar" class="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">
+          <i class="fa-solid fa-atom"></i>
+        </div>
+        <span class="logo-text">Nova <span class="logo-accent">AI</span></span>
+      </div>
+      <button class="icon-btn sidebar-close-btn" onclick="closeSidebar()" title="Close sidebar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- New Chat Button -->
+    <button class="new-chat-btn" onclick="createNewChat()">
+      <i class="fa-solid fa-plus"></i>
+      <span>New Chat</span>
+    </button>
+
+    <!-- Search Chats -->
+    <div class="search-wrapper">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input
+        type="text"
+        id="searchInput"
+        class="search-input"
+        placeholder="Search conversations…"
+        oninput="filterChats(this.value)"
+      />
+    </div>
+
+    <!-- Chat List -->
+    <nav class="chat-list-container">
+      <p class="chat-list-label">Recent</p>
+      <ul id="chatList" class="chat-list"></ul>
+      <p id="noChatsMsg" class="no-chats-msg" style="display:none">No conversations yet.</p>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-num" id="statMessages">0</span>
+          <span class="stat-label">Messages</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num" id="statChats">0</span>
+          <span class="stat-label">Chats</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num" id="statToday">0</span>
+          <span class="stat-label">Today</span>
+        </div>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="footer-actions">
+        <button class="footer-btn" onclick="openSettings()" title="Settings">
+          <i class="fa-solid fa-gear"></i>
+          <span>Settings</span>
+        </button>
+        <button class="footer-btn" onclick="exportConversations()" title="Export chats">
+          <i class="fa-solid fa-download"></i>
+          <span>Export</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN CONTENT
+  ============================================================ -->
+  <main class="main-content" id="mainContent">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <button class="icon-btn sidebar-toggle-btn" onclick="toggleSidebar()" title="Toggle sidebar">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <div class="topbar-center">
+        <span id="currentChatTitle" class="current-chat-title">Nova AI</span>
+      </div>
+
+      <div class="topbar-actions">
+        <button class="icon-btn" onclick="toggleVoiceOutput()" id="voiceOutputBtn" title="Toggle voice output">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+        <button class="icon-btn" id="galleryBtn" onclick="openGallery()" title="Image gallery" style="display:none">
+          <i class="fa-solid fa-images"></i>
+        </button>
+        <div class="model-badge">DeepSeek v3</div>
+      </div>
+    </header>
+
+    <!-- ============================================================
+         WELCOME SCREEN
+    ============================================================ -->
+    <section id="welcomeScreen" class="welcome-screen">
+      <div class="welcome-inner">
+        <div class="welcome-glow"></div>
+        <div class="welcome-logo-wrap">
+          <div class="welcome-icon">
+            <i class="fa-solid fa-atom"></i>
+          </div>
+        </div>
+        <h1 class="welcome-title">Hello, I'm <span class="gradient-text">Nova AI</span></h1>
+        <p class="welcome-sub">Your intelligent companion powered by OpenRouter AI. How can I help you today?</p>
+
+        <!-- Suggested Prompts -->
+        <div class="suggested-prompts">
+          <button class="prompt-chip" onclick="usePrompt(this)">
+            <i class="fa-solid fa-lightbulb"></i>
+            Explain quantum computing simply
+          </button>
+          <button class="prompt-chip" onclick="usePrompt(this)">
+            <i class="fa-solid fa-code"></i>
+            Write a Python web scraper
+          </button>
+          <button class="prompt-chip" onclick="usePrompt(this)">
+            <i class="fa-solid fa-palette"></i>
+            /image a cyberpunk city at night
+          </button>
+          <button class="prompt-chip" onclick="usePrompt(this)">
+            <i class="fa-solid fa-pen-nib"></i>
+            Write a creative short story
+          </button>
+          <button class="prompt-chip" onclick="usePrompt(this)">
+            <i class="fa-solid fa-chart-line"></i>
+            Analyze AI market trends 2025
+          </button>
+          <button class="prompt-chip" onclick="usePrompt(this)">
+            <i class="fa-solid fa-rocket"></i>
+            How to build a SaaS startup
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         CHAT MESSAGES AREA
+    ============================================================ -->
+    <section id="chatArea" class="chat-area" style="display:none">
+      <div id="messagesContainer" class="messages-container"></div>
+    </section>
+
+    <!-- ============================================================
+         INPUT AREA
+    ============================================================ -->
+    <footer class="input-area">
+      <div class="input-wrapper">
+        <!-- Voice Input Button -->
+        <button class="input-action-btn" id="voiceInputBtn" onclick="toggleVoiceInput()" title="Voice input">
+          <i class="fa-solid fa-microphone"></i>
+        </button>
+
+        <!-- Textarea -->
+        <textarea
+          id="userInput"
+          class="user-input"
+          placeholder="Message Nova AI… (Enter to send, Shift+Enter for new line)"
+          rows="1"
+          oninput="autoResizeTextarea(this)"
+          onkeydown="handleInputKeydown(event)"
+        ></textarea>
+
+        <!-- Send Button -->
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send message">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+      <p class="input-hint">
+        <kbd>Enter</kbd> Send &nbsp;·&nbsp; <kbd>Shift+Enter</kbd> New line &nbsp;·&nbsp;
+        <kbd>/image prompt</kbd> Generate image
+      </p>
+    </footer>
+  </main>
+
+  <!-- ============================================================
+       SETTINGS MODAL
+  ============================================================ -->
+  <div id="settingsModal" class="modal" onclick="closeSettingsOnOutside(event)">
+    <div class="modal-panel settings-panel">
+      <div class="modal-header">
+        <h2><i class="fa-solid fa-gear"></i> Settings</h2>
+        <button class="icon-btn" onclick="closeSettings()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- API Keys -->
+        <section class="settings-section">
+          <h3 class="settings-section-title"><i class="fa-solid fa-key"></i> API Keys</h3>
+          <p class="settings-desc">Keys are stored only in your browser. They are never sent anywhere except directly to the respective API.</p>
+
+          <!-- OpenRouter -->
+          <div class="api-key-group">
+            <label class="api-key-label">
+              OpenRouter API Key
+              <a href="https://openrouter.ai/keys" target="_blank" rel="noopener" class="key-help-link"><i class="fa-solid fa-arrow-up-right-from-square"></i> Get key</a>
+            </label>
+            <div class="api-key-row">
+              <input
+                type="password"
+                id="orKeyInput"
+                class="api-key-input"
+                placeholder="sk-or-v1-…"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button class="key-toggle-btn" onclick="toggleKeyVisibility('orKeyInput', this)" title="Show / hide">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <button id="orValidateBtn" class="key-validate-btn" onclick="validateAndSaveORKey()">
+                <i class="fa-solid fa-check"></i> Validate
+              </button>
+              <button class="key-clear-btn" onclick="clearKey('or')" title="Remove key">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+            <span id="orKeyStatus" class="key-status key-status--missing">⚠ Not set</span>
+          </div>
+
+          <!-- Hugging Face -->
+          <div class="api-key-group">
+            <label class="api-key-label">
+              Hugging Face Token <span class="key-label-sub">(for image generation)</span>
+              <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener" class="key-help-link"><i class="fa-solid fa-arrow-up-right-from-square"></i> Get token</a>
+            </label>
+            <div class="api-key-row">
+              <input
+                type="password"
+                id="hfTokenInput"
+                class="api-key-input"
+                placeholder="hf_…"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button class="key-toggle-btn" onclick="toggleKeyVisibility('hfTokenInput', this)" title="Show / hide">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <button id="hfValidateBtn" class="key-validate-btn" onclick="validateAndSaveHFToken()">
+                <i class="fa-solid fa-check"></i> Validate
+              </button>
+              <button class="key-clear-btn" onclick="clearKey('hf')" title="Remove token">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+            <span id="hfTokenStatus" class="key-status key-status--missing">⚠ Not set</span>
+          </div>
+        </section>
+
+        <!-- Theme -->
+        <section class="settings-section">
+          <h3 class="settings-section-title">Appearance</h3>
+          <div class="theme-options">
+            <button class="theme-btn active" data-theme="dark" onclick="setTheme('dark', this)">
+              <i class="fa-solid fa-moon"></i>
+              <span>Dark</span>
+            </button>
+            <button class="theme-btn" data-theme="light" onclick="setTheme('light', this)">
+              <i class="fa-solid fa-sun"></i>
+              <span>Light</span>
+            </button>
+            <button class="theme-btn" data-theme="cyberpunk" onclick="setTheme('cyberpunk', this)">
+              <i class="fa-solid fa-bolt"></i>
+              <span>Cyberpunk</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Keyboard Shortcuts -->
+        <section class="settings-section">
+          <h3 class="settings-section-title">Keyboard Shortcuts</h3>
+          <div class="shortcuts-list">
+            <div class="shortcut-row"><kbd>Enter</kbd><span>Send message</span></div>
+            <div class="shortcut-row"><kbd>Shift+Enter</kbd><span>New line</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+N</kbd><span>New chat</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+K</kbd><span>Search chats</span></div>
+            <div class="shortcut-row"><kbd>Esc</kbd><span>Close modal</span></div>
+          </div>
+        </section>
+
+        <!-- Data Management -->
+        <section class="settings-section">
+          <h3 class="settings-section-title">Data</h3>
+          <div class="settings-actions">
+            <button class="settings-action-btn export-btn" onclick="exportConversations()">
+              <i class="fa-solid fa-download"></i> Export All Conversations
+            </button>
+            <button class="settings-action-btn danger-btn" onclick="clearAllChats()">
+              <i class="fa-solid fa-trash"></i> Clear All Chats
+            </button>
+          </div>
+        </section>
+
+        <!-- About -->
+        <section class="settings-section">
+          <h3 class="settings-section-title">About</h3>
+          <p class="settings-about">
+            Nova AI v2.0.0 · Chat via <strong>OpenRouter (DeepSeek v3)</strong><br/>
+            Images via <strong>Hugging Face FLUX.1-schnell</strong><br/>
+            Built for peak productivity and creative exploration.
+          </p>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       IMAGE LIGHTBOX
+  ============================================================ -->
+  <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
+    <div class="lightbox-inner">
+      <img id="lightboxImg" src="" alt="Generated image" class="lightbox-img" />
+      <div class="lightbox-actions">
+        <button class="lb-btn" onclick="downloadLightboxImage()">
+          <i class="fa-solid fa-download"></i> Download
+        </button>
+        <button class="lb-btn" id="regenerateBtn" onclick="regenerateImage()">
+          <i class="fa-solid fa-rotate"></i> Regenerate
+        </button>
+        <button class="lb-btn danger" onclick="closeLightbox()">
+          <i class="fa-solid fa-xmark"></i> Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       IMAGE GALLERY MODAL
+  ============================================================ -->
+  <div id="galleryModal" class="modal" onclick="closeGalleryOnOutside(event)">
+    <div class="modal-panel gallery-panel">
+      <div class="modal-header">
+        <h2><i class="fa-solid fa-images"></i> Image Gallery</h2>
+        <button class="icon-btn" onclick="closeGallery()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div id="galleryGrid" class="gallery-grid"></div>
+        <p id="galleryEmpty" class="gallery-empty" style="display:none">No images generated yet. Try <code>/image your prompt</code></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       NOTIFICATION TOAST
+  ============================================================ -->
+  <div id="toast" class="toast" aria-live="assertive"></div>
+
+  <!-- ============================================================
+       RENAME CHAT MODAL
+  ============================================================ -->
+  <div id="renameModal" class="modal" onclick="closeRenameOnOutside(event)">
+    <div class="modal-panel rename-panel">
+      <div class="modal-header">
+        <h2><i class="fa-solid fa-pen"></i> Rename Chat</h2>
+        <button class="icon-btn" onclick="closeRenameModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="renameInput" class="rename-input" placeholder="Chat title…" onkeydown="handleRenameKeydown(event)" />
+        <div class="rename-actions">
+          <button class="settings-action-btn" onclick="confirmRename()">
+            <i class="fa-solid fa-check"></i> Save
+          </button>
+          <button class="settings-action-btn danger-btn" onclick="closeRenameModal()">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main script -->
+  <script src="script.js"></script>
+</body>
+</html>
