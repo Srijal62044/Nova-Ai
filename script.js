@@ -7,7 +7,7 @@
 'use strict';
 
 /* ── Gemini API Configuration ─────────────────────────────── */
-const GEMINI_API_KEY = "AIzaSyCBYIqiIuQOGmGxzDt6YB88-08pWMv_d1s";
+const GEMINI_API_KEY = "AQ.Ab8RN6JoS_AGUHQYv-eiOEm2lDxNRB5cBwPr6zOJkqCU7_deHg";
 const GEMINI_CHAT_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
 const GEMINI_IMAGE_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${GEMINI_API_KEY}`;
 
